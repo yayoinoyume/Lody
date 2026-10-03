@@ -1,0 +1,10 @@
+# Lody CLI 构建镜像：国内镜像源（npm 淘宝镜像），构建产物挂载回宿主机
+FROM node:22.20-bookworm-slim
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git python3 make g++ zstd ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && corepack enable && corepack prepare pnpm@10.20.0 --activate \
+    && npm config set registry https://registry.npmmirror.com
+
+WORKDIR /build
