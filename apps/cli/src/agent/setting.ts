@@ -599,6 +599,11 @@ async function resolveBuiltinACPProcessLaunch(
           signal: input.signal,
         })
       : await resolveManagedRuntimeForLaunch('pi', input);
+    // The managed runtime here is the Pi ACP adapter, which spawns the official
+    // Pi CLI itself. A user-supplied piPath is forwarded as an environment
+    // override (the Pi-adapter counterpart of CODEX_PATH); the adapter decides
+    // whether to launch it instead of the packaged Pi CLI.
+    const piPath = trimRuntimeOverride(input.runtimeOverrides?.piPath);
     return {
       command: process.execPath,
       args: [
@@ -606,6 +611,7 @@ async function resolveBuiltinACPProcessLaunch(
         ...extensions.flatMap((path) => ['-e', path]),
         ...(input.extraArgs ?? []),
       ],
+      env: piPath ? { LODY_PI_PATH: piPath } : undefined,
       capabilitySourceVersion: getAcpCapabilitySourceVersion(input, runtime.version),
     };
   }

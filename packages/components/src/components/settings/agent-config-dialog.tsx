@@ -1765,6 +1765,18 @@ export function AgentConfigDialog(props: AgentConfigDialogProps) {
               : formData.agentType === 'grok'
                 ? 'grokPath'
                 : null;
+  const builtinPiPathValue =
+    formData.cliType === 'builtin' && formData.agentType === 'pi'
+      ? (formData.runtimeOverrides?.piPath ?? '')
+      : '';
+  const updateBuiltinPiPath = (value: string) => {
+    setFormData((prev) => {
+      const nextOverrides = { ...(prev.runtimeOverrides ?? {}) };
+      if (value.trim()) nextOverrides.piPath = value;
+      else delete nextOverrides.piPath;
+      return { ...prev, runtimeOverrides: nextOverrides };
+    });
+  };
   const builtinRuntimeOverrideValue = builtinRuntimeOverrideKey
     ? (formData.runtimeOverrides?.[builtinRuntimeOverrideKey] ?? '')
     : '';
@@ -3046,6 +3058,29 @@ export function AgentConfigDialog(props: AgentConfigDialogProps) {
                     }}
                   />
                 </div>
+              </Field>
+            </div>
+          ) : null}
+
+          {formData.cliType === 'builtin' && formData.agentType === 'pi' && !activePreset ? (
+            <div {...stylex.props(styles.stack)}>
+              <Field
+                htmlFor="builtin-pi-path"
+                label={t('settings.agent.dialog.piPath.label', 'Pi binary path')}
+                hint={t(
+                  'settings.agent.dialog.piPath.hint',
+                  'Advanced: leave empty to use the Pi CLI bundled with the managed runtime. Filling this launches your own Pi installation instead.'
+                )}
+                icon={<SquareTerminal aria-hidden="true" {...stylex.props(catalog.icon)} />}
+              >
+                <Input
+                  id="builtin-pi-path"
+                  value={builtinPiPathValue}
+                  onChange={(event) => updateBuiltinPiPath(event.target.value)}
+                  placeholder={t('settings.agent.dialog.piPath.placeholder', '/path/to/pi')}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
               </Field>
             </div>
           ) : null}
