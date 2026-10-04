@@ -2987,7 +2987,7 @@ export function AgentConfigDialog(props: AgentConfigDialogProps) {
             </div>
           )}
 
-          {builtinRuntimeOverrideKey && !activePreset ? (
+          {builtinRuntimeOverrideKey && formData.agentType !== 'pi' && !activePreset ? (
             <div {...stylex.props(styles.stack)}>
               <Field
                 htmlFor="builtin-runtime-path"
