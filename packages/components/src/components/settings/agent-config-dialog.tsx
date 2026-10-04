@@ -1770,6 +1770,7 @@ export function AgentConfigDialog(props: AgentConfigDialogProps) {
       ? (formData.runtimeOverrides?.piPath ?? '')
       : '';
   const updateBuiltinPiPath = (value: string) => {
+    invalidateBuiltinVerification();
     setFormData((prev) => {
       const nextOverrides = { ...(prev.runtimeOverrides ?? {}) };
       if (value.trim()) nextOverrides.piPath = value;

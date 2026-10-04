@@ -342,9 +342,11 @@ const MANAGED_BUILTIN_RUNTIME_OVERRIDE_PATH_KEYS = {
   devin: 'devinPath',
   claude: 'claudeCodeExecutable',
   codex: 'codexPath',
-  // Pi has no replacement binary. Its override is an extension list, handled in
-  // resolveExpectedAcpCapabilitySourceVersion because it changes which runtime
-  // version the launcher requires rather than which binary it runs.
+  // Pi keeps its managed adapter binary; piPath overrides the Pi CLI the
+  // adapter spawns internally, forwarded as the LODY_PI_PATH env var. Its
+  // launch-args override (piExtensions) is handled in
+  // resolveExpectedAcpCapabilitySourceVersion, and piPath already participates
+  // in the capability cache key through the runtimeOverrides suffix.
   pi: null,
 } as const satisfies Record<ManagedBuiltinAgentType, keyof BuiltinRuntimeOverrides | null>;
 
