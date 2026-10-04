@@ -342,11 +342,8 @@ const MANAGED_BUILTIN_RUNTIME_OVERRIDE_PATH_KEYS = {
   devin: 'devinPath',
   claude: 'claudeCodeExecutable',
   codex: 'codexPath',
-  // Pi keeps its managed adapter binary; piPath overrides the Pi CLI the
-  // adapter spawns internally, forwarded as the LODY_PI_PATH env var. Its
-  // launch-args override (piExtensions) is handled in
-  // resolveExpectedAcpCapabilitySourceVersion, and piPath already participates
-  // in the capability cache key through the runtimeOverrides suffix.
+  // Pi keeps its managed adapter binary; piPath overrides the CLI the adapter
+  // spawns via LODY_PI_PATH and takes part in the override cache suffix.
   pi: null,
 } as const satisfies Record<ManagedBuiltinAgentType, keyof BuiltinRuntimeOverrides | null>;
 
@@ -601,10 +598,8 @@ async function resolveBuiltinACPProcessLaunch(
           signal: input.signal,
         })
       : await resolveManagedRuntimeForLaunch('pi', input);
-    // The managed runtime here is the Pi ACP adapter, which spawns the official
-    // Pi CLI itself. A user-supplied piPath is forwarded as an environment
-    // override (the Pi-adapter counterpart of CODEX_PATH); the adapter decides
-    // whether to launch it instead of the packaged Pi CLI.
+    // The managed runtime is the Pi ACP adapter; piPath overrides the Pi CLI
+    // the adapter spawns, forwarded as its CODEX_PATH-style env counterpart.
     const piPath = trimRuntimeOverride(input.runtimeOverrides?.piPath);
     return {
       command: process.execPath,
