@@ -97,6 +97,39 @@ describe('resolveBuiltinACPSetting', () => {
       support.mockRestore();
     }
   });
+  it('forwards a user Pi binary to the adapter via LODY_PI_PATH and drops it for other agents', async () => {
+    const manager = vi.spyOn(managedRuntime, 'getManagedAgentRuntimeManager').mockReturnValue({
+      resolveRuntimeForLaunch: async () => ({
+        runtimeName: 'pi',
+        version: '0.2.0',
+        platformArch: 'node',
+        command: '/managed/pi/index.js',
+      }),
+      ensureCurrentRuntime: async () => {
+        throw new Error('ensureCurrentRuntime must not be used without extensions');
+      },
+    } as ReturnType<typeof managedRuntime.getManagedAgentRuntimeManager>);
+    try {
+      const acp = await resolveACPProcessLaunchAsync({
+        cliType: 'builtin' as const,
+        agentType: 'pi',
+        runtimeOverrides: { piPath: '/fixture/user-pi' },
+      });
+      expect(acp.command).toBe(process.execPath);
+      expect(acp.args).toEqual(['/managed/pi/index.js']);
+      expect(acp.env).toEqual({ LODY_PI_PATH: '/fixture/user-pi' });
+      expect(acp.capabilitySourceVersion).toBe(
+        'builtin-pi:0.2.0+override:{"piPath":"/fixture/user-pi"}'
+      );
+      const withoutOverride = await resolveACPProcessLaunchAsync({
+        cliType: 'builtin' as const,
+        agentType: 'pi',
+      });
+      expect(withoutOverride.env).toBeUndefined();
+    } finally {
+      manager.mockRestore();
+    }
+  });
   it('keeps legacy Pi runnable outside the catalog until confirmation', () => {
     expect(REGISTRY_ACP_AGENTS.some((agent) => agent.id === 'pi-acp')).toBe(false);
     const launch = resolveACPSetting({ cliType: 'registry', agentType: 'pi-acp' });

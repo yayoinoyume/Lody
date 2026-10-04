@@ -1764,20 +1764,13 @@ export function AgentConfigDialog(props: AgentConfigDialogProps) {
               ? 'devinPath'
               : formData.agentType === 'grok'
                 ? 'grokPath'
-                : null;
+                : formData.agentType === 'pi'
+                  ? 'piPath'
+                  : null;
   const builtinPiPathValue =
     formData.cliType === 'builtin' && formData.agentType === 'pi'
       ? (formData.runtimeOverrides?.piPath ?? '')
       : '';
-  const updateBuiltinPiPath = (value: string) => {
-    invalidateBuiltinVerification();
-    setFormData((prev) => {
-      const nextOverrides = { ...(prev.runtimeOverrides ?? {}) };
-      if (value.trim()) nextOverrides.piPath = value;
-      else delete nextOverrides.piPath;
-      return { ...prev, runtimeOverrides: nextOverrides };
-    });
-  };
   const builtinRuntimeOverrideValue = builtinRuntimeOverrideKey
     ? (formData.runtimeOverrides?.[builtinRuntimeOverrideKey] ?? '')
     : '';
@@ -3077,7 +3070,7 @@ export function AgentConfigDialog(props: AgentConfigDialogProps) {
                 <Input
                   id="builtin-pi-path"
                   value={builtinPiPathValue}
-                  onChange={(event) => updateBuiltinPiPath(event.target.value)}
+                  onChange={(event) => updateBuiltinRuntimeOverride(event.target.value)}
                   placeholder={t('settings.agent.dialog.piPath.placeholder', '/path/to/pi')}
                   autoComplete="off"
                   spellCheck={false}
